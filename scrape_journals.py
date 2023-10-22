@@ -1,7 +1,32 @@
 import requests
 import time
+import locale
+from datetime import datetime
 from bs4 import BeautifulSoup
 import pandas as pd
+
+date_format = "%d de %B de %Y"
+
+def translate_month(date_string):
+  month_translation = {
+    'janeiro': 'January',
+    'fevereiro': 'February',
+    'março': 'March',
+    'abril': 'April',
+    'maio': 'May',
+    'junho': 'June',
+    'julho': 'July',
+    'agosto': 'August',
+    'setembro': 'September',
+    'outubro': 'October',
+    'novembro': 'November',
+    'dezembro': 'December'
+  }
+
+  for pt_month, en_month in month_translation.items():
+    date_string = date_string.replace(pt_month, en_month)
+
+  return date_string
 
 def process_raw_articles(base_soup, source):
   articles = []
@@ -34,8 +59,26 @@ def process_raw_articles(base_soup, source):
     raw_articles = base_soup.find_all('div', class_="card")
     for article in raw_articles:
       title = article.find('h3', class_="card__title").text
-      date = article.find('div', class_="card__info").text.split("|")[1].strip()
+      date_string = article.find('div', class_="card__info").text.split("|")[1].strip()
+      translated_date_string = translate_month(date_string)
+      raw_date = datetime.strptime(translated_date_string, date_format)
+      date = raw_date.strftime("%Y-%m-%dT%H:%M:%S%z-03:00")
       url = article.find('a')['href']
+      articles.append({
+        'title': title,
+        'date': date,
+        'url': url,
+      })
+
+  elif source == "rede":
+    raw_articles = base_soup.find_all('div', class_="blog-entry-inner")
+    for article in raw_articles:
+      title = article.find('a', rel="bookmark").text
+      date_string = article.find('div', class_="blog-entry-date").text.strip()
+      translated_date_string = translate_month(date_string)
+      raw_date = datetime.strptime(translated_date_string, date_format)
+      date = raw_date.strftime("%Y-%m-%dT%H:%M:%S%z-03:00")
+      url = article.find('a', rel="bookmark")['href']
       articles.append({
         'title': title,
         'date': date,
@@ -53,7 +96,9 @@ def get_articles_from_journal(source, page=1):
   elif source == "psb":
     url = f'https://psb40.org.br/noticias/page/{page}'
   elif source == "mdb":
-    url = f'https://www.mdb.org.br/noticias/page/{page}/'
+    url = f'https://www.mdb.org.br/noticias/page/{page}'
+  elif source == "rede":
+    url = f'https://redesustentabilidade.org.br/blog/page/{page}'
   else:
     return False
 
@@ -92,7 +137,10 @@ def main():
   #get_articles_from_journal("psb", 3)
 
   #generates csv from the second page to the tenth page
-  iterate_get_articles_from_journal("mdb", 2, 10)
+  #iterate_get_articles_from_journal("mdb", 2, 10)
+
+  #generates csv from the fifth page to the seventh page
+  #iterate_get_articles_from_journal("rede", 5, 7)
 
 if __name__ == "__main__":
   main()
