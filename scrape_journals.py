@@ -37,10 +37,21 @@ def process_raw_articles(base_soup, source):
       title = article.find('a').text
       date = article.find('time')['datetime']
       url = article.find('a')['href']
+
+      content_response = requests.get(url, verify=False)
+      content_soup = BeautifulSoup(content_response.content, 'html.parser')
+      raw_contents = content_soup.find('div', class_="entry-content")
+      content = ''
+
+      for raw_content in raw_contents:
+        if not raw_content.text is None:
+          content += raw_content.text.replace("\n","")
+
       articles.append({
         'title': title,
         'date': date,
         'url': url,
+        'content': content
       })
 
   elif source == "psb":
@@ -49,10 +60,22 @@ def process_raw_articles(base_soup, source):
       title = article.get('data-name')
       date = article.get('data-date')
       url = article.find('a')['href']
+
+      content_response = requests.get(url, verify=False)
+      content_soup = BeautifulSoup(content_response.content, 'html.parser')
+      raw_contents = content_soup.find_all('div', class_="entry-content")
+      content = ''
+
+      for half_part in raw_contents:
+        for raw_content in half_part:
+          if not raw_content.text is None:
+            content += raw_content.text.replace("\n","")
+
       articles.append({
         'title': title,
         'date': date,
         'url': url,
+        'content': content
       })
   
   elif source == "mdb":
@@ -64,10 +87,21 @@ def process_raw_articles(base_soup, source):
       raw_date = datetime.strptime(translated_date_string, date_format)
       date = raw_date.strftime("%Y-%m-%dT%H:%M:%S%z-03:00")
       url = article.find('a')['href']
+
+      content_response = requests.get(url, verify=False)
+      content_soup = BeautifulSoup(content_response.content, 'html.parser')
+      raw_contents = content_soup.find('article', class_="article")
+      content = ''
+
+      for raw_content in raw_contents:
+        if not raw_content.text is None:
+          content += raw_content.text.replace("\n","")
+
       articles.append({
         'title': title,
         'date': date,
         'url': url,
+        'content': content
       })
 
   elif source == "rede":
@@ -79,10 +113,21 @@ def process_raw_articles(base_soup, source):
       raw_date = datetime.strptime(translated_date_string, date_format)
       date = raw_date.strftime("%Y-%m-%dT%H:%M:%S%z-03:00")
       url = article.find('a', rel="bookmark")['href']
+
+      content_response = requests.get(url, verify=False)
+      content_soup = BeautifulSoup(content_response.content, 'html.parser')
+      raw_contents = content_soup.find('div', class_="entry-content")
+      content = ''
+
+      for raw_content in raw_contents:
+        if not raw_content.text is None:
+          content += raw_content.text.replace("\n","")
+
       articles.append({
         'title': title,
         'date': date,
         'url': url,
+        'content': content
       })
 
   else:
@@ -131,7 +176,7 @@ def iterate_get_articles_from_journal(source, start_page, end_page):
 
 def main():
   #generates csv from the first page
-  #get_articles_from_journal("pv")
+  get_articles_from_journal("rede")
 
   #generates csv from the third page
   #get_articles_from_journal("psb", 3)
@@ -141,6 +186,11 @@ def main():
 
   #generates csv from the fifth page to the seventh page
   #iterate_get_articles_from_journal("rede", 5, 7)
+
+  #iterate_get_articles_from_journal("pv", 1, 80)
+  #iterate_get_articles_from_journal("psb", 1, 80)
+  #iterate_get_articles_from_journal("mdb", 1, 80)
+  #iterate_get_articles_from_journal("rede", 1, 80)
 
 if __name__ == "__main__":
   main()
