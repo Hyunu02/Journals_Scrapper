@@ -43,9 +43,10 @@ def process_raw_articles(base_soup, source):
       raw_contents = content_soup.find('div', class_="entry-content")
       content = ''
 
-      for raw_content in raw_contents:
-        if not raw_content.text is None:
-          content += raw_content.text.replace("\n","")
+      if not raw_contents is None:
+        for raw_content in raw_contents:
+          if not raw_content.text is None:
+            content += raw_content.text.replace("\n","")
 
       articles.append({
         'title': title,
@@ -66,10 +67,11 @@ def process_raw_articles(base_soup, source):
       raw_contents = content_soup.find_all('div', class_="entry-content")
       content = ''
 
-      for half_part in raw_contents:
-        for raw_content in half_part:
-          if not raw_content.text is None:
-            content += raw_content.text.replace("\n","")
+      if not raw_contents is None:
+        for half_part in raw_contents:
+          for raw_content in half_part:
+            if not raw_content.text is None:
+              content += raw_content.text.replace("\n","")
 
       articles.append({
         'title': title,
@@ -93,9 +95,10 @@ def process_raw_articles(base_soup, source):
       raw_contents = content_soup.find('article', class_="article")
       content = ''
 
-      for raw_content in raw_contents:
-        if not raw_content.text is None:
-          content += raw_content.text.replace("\n","")
+      if not raw_contents is None:
+        for raw_content in raw_contents:
+          if not raw_content.text is None:
+            content += raw_content.text.replace("\n","")
 
       articles.append({
         'title': title,
@@ -119,9 +122,10 @@ def process_raw_articles(base_soup, source):
       raw_contents = content_soup.find('div', class_="entry-content")
       content = ''
 
-      for raw_content in raw_contents:
-        if not raw_content.text is None:
-          content += raw_content.text.replace("\n","")
+      if not raw_contents is None:
+        for raw_content in raw_contents:
+          if not raw_content.text is None:
+            content += raw_content.text.replace("\n","")
 
       articles.append({
         'title': title,
